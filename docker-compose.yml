@@ -1,0 +1,41 @@
+services:
+  hashstore:
+    build: .
+    container_name: trt-hashstore
+    hostname: trt-hashstore
+    ports:
+      - "8880:80"     # Nginx
+      - "5433:5432"   # PostgreSQL (offset to avoid host conflicts)
+      - "6380:6379"   # Redis (offset)
+      - "4223:4222"   # NATS (offset)
+    volumes:
+      # Mount service binaries and migrations from host builds
+      - ./services/trt-auth/bin:/opt/trt-auth/bin
+      - ./services/trt-auth/migrations:/opt/trt-auth/migrations
+      - ./services/trt-hashstore/bin:/opt/trt-hashstore/bin
+      - ./services/trt-hashstore/migrations:/opt/trt-hashstore/migrations
+      - ./services/trt-hashstore-storage/bin:/opt/trt-hashstore-storage/bin
+      - ./services/trt-hashstore-storage/migrations:/opt/trt-hashstore-storage/migrations
+      - ./services/trt-hashstore-capacity/bin:/opt/trt-hashstore-capacity/bin
+      - ./services/trt-hashstore-capacity/migrations:/opt/trt-hashstore-capacity/migrations
+      - ./services/trt-hashstore-notification/bin:/opt/trt-hashstore-notification/bin
+      - ./services/trt-hashstore-notification/migrations:/opt/trt-hashstore-notification/migrations
+      - ./services/trt-hashstore-audit/bin:/opt/trt-hashstore-audit/bin
+      - ./services/trt-hashstore-audit/migrations:/opt/trt-hashstore-audit/migrations
+      # Mount static website
+      - ./websites/hashstore:/var/www/hashstore
+      # Persist data across restarts
+      - pgdata:/var/lib/postgresql
+      - redisdata:/var/lib/redis
+      - natsdata:/var/lib/nats/jetstream
+      - chunkdata:/data/hashstore/chunks
+      # Environment file with secrets
+      - ./dev.env:/etc/environment:ro
+    env_file:
+      - dev.env
+
+volumes:
+  pgdata:
+  redisdata:
+  natsdata:
+  chunkdata:

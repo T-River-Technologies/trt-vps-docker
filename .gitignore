@@ -1,0 +1,16 @@
+# Binaries placed for deployment
+services/*/bin/
+services/*/migrations/
+
+# Website build output
+websites/*/
+
+# Docker
+.docker/
+
+# Temporary
+tmp/
+
+# Environment files with secrets
+*.env
+!*.env.example
