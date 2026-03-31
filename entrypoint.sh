@@ -20,6 +20,11 @@ echo "==> Starting NATS JetStream..."
 nats-server -c /etc/nats/nats.conf &
 sleep 1
 
+echo "==> Starting Mailpit (SMTP capture + web UI)..."
+mailpit --smtp 0.0.0.0:1025 --listen 0.0.0.0:8025 \
+    --db-file /data/mailpit/mailpit.db &
+sleep 1
+
 echo "==> Loading shared environment..."
 set -a
 # shellcheck disable=SC1091
@@ -57,74 +62,64 @@ run_migrations /opt/trt-hashstore-audit/migrations "$HASHSTORE_AUDIT_MIGRATOR_UR
 
 echo "==> Starting TRT services..."
 
-# Helper: start a service with its own TRT_DATABASE_URL and TRT_PORT.
-# Usage: start_service <user> <binary> <db_url_var> <port> <label>
+# Helper: start a service binary as the given user.
+# All TRT_* env vars are already loaded from /etc/environment.
+# Each service reads its own service-specific env vars directly.
+# Usage: start_service <user> <binary> <label>
 start_service() {
-    local user="$1" binary="$2" db_url="$3" port="$4" label="$5"
+    local user="$1" binary="$2" label="$3"
     if [ ! -x "$binary" ]; then
         echo "    SKIP $label — binary not found"
         return
     fi
-    echo "    Starting $label on :$port"
-    TRT_DATABASE_URL="$db_url" TRT_PORT="$port" \
-        su - "$user" -s /bin/bash -c "
-            export TRT_DATABASE_URL='$db_url'
-            export TRT_PORT='$port'
-            export TRT_JWT_SECRET='${TRT_JWT_SECRET:-}'
-            export TRT_MFA_SECRET='${TRT_MFA_SECRET:-}'
-            export TRT_CONFIG_ENCRYPTION_KEY='${TRT_CONFIG_ENCRYPTION_KEY:-}'
-            export TRT_BACKUP_ENCRYPTION_KEY='${TRT_BACKUP_ENCRYPTION_KEY:-}'
-            export TRT_NATS_URL='${TRT_NATS_URL:-}'
-            export TRT_REDIS_URL='${TRT_REDIS_URL:-}'
-            export TRT_AUTHENTICATOR_URL='${TRT_AUTHENTICATOR_URL:-}'
-            export TRT_STORAGE_SERVICE_URL='${TRT_STORAGE_SERVICE_URL:-}'
-            export TRT_STORAGE_BASE_PATH='${TRT_STORAGE_BASE_PATH:-}'
-            export TRT_ADMIN_TOKEN='${TRT_ADMIN_TOKEN:-}'
-            export TRT_DSAR_ENCRYPTION_KEY='${TRT_DSAR_ENCRYPTION_KEY:-}'
-            export TRT_EXPORT_ENCRYPTION_KEY='${TRT_EXPORT_ENCRYPTION_KEY:-}'
-            exec $binary
-        " &
+    echo "    Starting $label..."
+    # Export all TRT_* env vars into the sub-shell so the
+    # service can read its own prefixed variables.
+    runuser -u "$user" -- env \
+        $(env | grep '^TRT_' | tr '\n' ' ') \
+        "$binary" &
 }
 
-# Authenticator
+# Authenticator (port 50002 — configured via database seed)
 start_service trt-auth \
     /opt/trt-auth/bin/authenticator \
-    "$AUTH_DATABASE_URL" 50002 authenticator
+    authenticator
 sleep 3
 
-# HashStore API — starts first to create NATS streams
+# HashStore API (port 8080 — default from TRT_HASHSTORE_API_PORT)
 start_service trt-hashstore \
     /opt/trt-hashstore/bin/hashstore-api \
-    "$HASHSTORE_API_DATABASE_URL" 8080 hashstore-api
+    hashstore-api
 
-# HashStore Storage
+# HashStore Storage (port 8082 — default from TRT_HASHSTORE_STORAGE_PORT)
 start_service trt-hashstore-storage \
     /opt/trt-hashstore-storage/bin/hashstore-storage \
-    "$HASHSTORE_STORAGE_DATABASE_URL" 8082 hashstore-storage
+    hashstore-storage
 
-# HashStore Capacity
+# HashStore Capacity (port 8081 — default from TRT_HASHSTORE_CAPACITY_PORT)
 start_service trt-hashstore-capacity \
     /opt/trt-hashstore-capacity/bin/hashstore-capacity \
-    "$HASHSTORE_CAPACITY_DATABASE_URL" 8081 hashstore-capacity
+    hashstore-capacity
 
-# Wait for API to create NATS streams before starting NATS consumers
+# Wait for API to create NATS streams before starting consumers
 sleep 5
 
-# HashStore Notification (consumes from NATS)
+# HashStore Notifier (port 8083 — default from TRT_HASHSTORE_NOTIFIER_PORT)
 start_service trt-hashstore-notification \
     /opt/trt-hashstore-notification/bin/hashstore-notification \
-    "$HASHSTORE_NOTIFICATION_DATABASE_URL" 8083 hashstore-notification
+    hashstore-notifier
 
-# HashStore Audit (consumes from NATS)
+# HashStore Audit (port 8084 — set via TRT_HASHSTORE_AUDIT_PORT in dev.env)
 start_service trt-hashstore-audit \
     /opt/trt-hashstore-audit/bin/hashstore-audit \
-    "$HASHSTORE_AUDIT_DATABASE_URL" 8084 hashstore-audit
+    hashstore-audit
 
 echo "==> Starting Nginx..."
 nginx -g 'daemon off;' &
 
 echo "==> All services started. Container is ready."
 echo "    HashStore: http://localhost:8880"
+echo "    Mailpit:   http://localhost:8025"
 
 # Keep container alive regardless of individual service crashes
 tail -f /dev/null

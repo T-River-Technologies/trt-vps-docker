@@ -43,6 +43,8 @@ entrypoint script, just like systemd manages them on the VPS.
 | PostgreSQL | 5432 | 7 databases (auth + products) |
 | Redis      | 6379 | Permission caching            |
 | NATS       | 4222 | JetStream for HashStore       |
+| Mailpit    | 1025 | SMTP capture (email sink)     |
+| Mailpit UI | 8025 | Web UI + REST API             |
 
 ### Service Layout
 

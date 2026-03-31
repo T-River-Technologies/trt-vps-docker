@@ -8,6 +8,7 @@ services:
       - "5433:5432"   # PostgreSQL (offset to avoid host conflicts)
       - "6380:6379"   # Redis (offset)
       - "4223:4222"   # NATS (offset)
+      - "8025:8025"   # Mailpit web UI
     volumes:
       # Mount service binaries and migrations from host builds
       - ./services/trt-auth/bin:/opt/trt-auth/bin
@@ -29,6 +30,7 @@ services:
       - redisdata:/var/lib/redis
       - natsdata:/var/lib/nats/jetstream
       - chunkdata:/data/hashstore/chunks
+      - mailpitdata:/data/mailpit
       # Environment file with secrets
       - ./dev.env:/etc/environment:ro
     env_file:
@@ -39,3 +41,4 @@ volumes:
   redisdata:
   natsdata:
   chunkdata:
+  mailpitdata:

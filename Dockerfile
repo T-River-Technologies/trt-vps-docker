@@ -22,6 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-amd64.tar.gz \
     | tar -xz -C /usr/local/bin migrate
 
+# Install Mailpit for email testing (SMTP capture + web UI)
+RUN curl -fsSL https://github.com/axllent/mailpit/releases/latest/download/mailpit-linux-amd64.tar.gz \
+    | tar -xz -C /usr/local/bin mailpit
+
 # Create system users matching VPS deployer layout (no-login shells)
 RUN useradd --system --no-create-home --shell /usr/sbin/nologin trt-auth \
     && useradd --system --no-create-home --shell /usr/sbin/nologin trt-hashstore \
@@ -43,11 +47,13 @@ RUN mkdir -p \
     /opt/trt-hashstore-audit/bin /opt/trt-hashstore-audit/logs \
     /opt/trt-hashstore-audit/migrations \
     /data/hashstore/chunks \
+    /data/mailpit \
+    /var/backups/trauth \
     /var/www/hashstore \
     /var/lib/nats/jetstream
 
 # Set directory ownership matching VPS deployer
-RUN chown -R trt-auth:trt-auth /opt/trt-auth \
+RUN chown -R trt-auth:trt-auth /opt/trt-auth /var/backups/trauth \
     && chown -R trt-hashstore:trt-hashstore /opt/trt-hashstore \
     && chown -R trt-hashstore-storage:trt-hashstore-storage \
         /opt/trt-hashstore-storage /data/hashstore/chunks \
@@ -71,7 +77,7 @@ COPY config/postgres/init.sql /docker-entrypoint-initdb.d/init.sql
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Expose ports: Nginx(80), PostgreSQL(5432), Redis(6379), NATS(4222)
-EXPOSE 80 5432 6379 4222
+# Expose ports: Nginx(80), PostgreSQL(5432), Redis(6379), NATS(4222), Mailpit(8025)
+EXPOSE 80 5432 6379 4222 8025
 
 ENTRYPOINT ["/entrypoint.sh"]
