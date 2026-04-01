@@ -2,9 +2,10 @@
 
 ## What This Repo Is
 
-Docker container that replicates the TRT VPS environment — Ubuntu 25.10 with PostgreSQL, Redis,
-NATS JetStream, and Nginx. Services and Jaspr websites are mounted as volumes so they run
-identically to the production VPS without needing a remote server.
+Docker container that replicates the TRT VPS environment — Ubuntu 25.10 with PostgreSQL,
+Redis, NATS JetStream, Nginx, and Mailpit. All TRT product services (Auth, HashStore,
+Payments, Jaspr website) run inside a single container matching the production VPS layout.
+Binaries, migrations, and the Jaspr website are mounted as volumes from host builds.
 
 ## Knowledge Base
 
@@ -27,8 +28,9 @@ Use Claude Haiku for all git commit messages.
 
 ## Stories
 
-See [Stories](../trt-ai-agent-development-system/projects/trt-vps-docker/stories.md) for
-current epics and planned work.
+See [Stories](../trt-ai-agent-development-system/projects/trt-vps-docker/stories.md)
+for current epics and planned work. Always read `stories.md` at the start of a session to
+find the current epic and which story to work on next.
 
 ## Container Architecture
 
@@ -37,19 +39,28 @@ entrypoint script, just like systemd manages them on the VPS.
 
 ### Infrastructure
 
-| Component  | Port | Notes                         |
-|------------|------|-------------------------------|
-| Nginx      | 80   | Reverse proxy, static websites |
-| PostgreSQL | 5432 | 7 databases (auth + products) |
-| Redis      | 6379 | Permission caching            |
-| NATS       | 4222 | JetStream for HashStore       |
-| Mailpit    | 1025 | SMTP capture (email sink)     |
-| Mailpit UI | 8025 | Web UI + REST API             |
+| Component  | Port | Host Port | Notes                         |
+|------------|------|-----------|-------------------------------|
+| Nginx      | 80   | 8880      | Reverse proxy, Jaspr website  |
+| PostgreSQL | 5432 | 5433      | 8 databases (auth + products) |
+| Redis      | 6379 | 6380      | Permission caching            |
+| NATS       | 4222 | 4223      | JetStream for HashStore       |
+| Mailpit    | 1025 | —         | SMTP capture (email sink)     |
+| Mailpit UI | 8025 | 8025      | Web UI + REST API             |
 
-### Service Layout
+### Services (all ports above 50000)
 
-Binaries mount into `/opt/trt-*/bin/` and migrations into `/opt/trt-*/migrations/`, matching
-the VPS deployer directory structure exactly.
+| Service              | Port  | Route | Binary Path                    |
+|----------------------|-------|-------|--------------------------------|
+| Authenticator        | 50002 | `/a/` | `/opt/trt-auth/bin/`           |
+| HashStore API        | 50010 | `/h/` | `/opt/trt-hashstore/bin/`      |
+| HashStore Capacity   | 50011 | —     | `/opt/trt-hashstore-capacity/` |
+| HashStore Storage    | 50012 | —     | `/opt/trt-hashstore-storage/`  |
+| HashStore Notifier   | 50013 | —     | `/opt/trt-hashstore-notifier/` |
+| HashStore Audit      | 50014 | —     | `/opt/trt-hashstore-audit/`    |
+| Payments             | 50015 | `/p/` | `/opt/trt-payments/bin/`       |
+| Notifications API    | 50016 | `/n/` | `/opt/trt-hashstore-notifications/` |
+| Jaspr Website (SSR)  | 50080 | `/`   | `/opt/trt-jaspr/bin/`          |
 
 ### Usage
 
