@@ -1,5 +1,6 @@
 IMAGE_NAME := trt-vps
 CONTAINER_NAME := trt-vps
+# Keep in sync with docker-compose.yml container_name
 
 .PHONY: build up down restart logs shell clean env
 

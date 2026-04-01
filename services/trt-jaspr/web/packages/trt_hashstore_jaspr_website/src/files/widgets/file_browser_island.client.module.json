@@ -1,0 +1,1 @@
+{"name":"FileBrowserIsland","id":["trt_hashstore_jaspr_website","lib/src/files/widgets/file_browser_island.dart"],"import":"package:trt_hashstore_jaspr_website/src/files/widgets/file_browser_island.dart","params":[{"name":"initialDirectoryId","isNamed":true,"decoder":"p['initialDirectoryId'] as String?","encoder":"c.initialDirectoryId"}]}

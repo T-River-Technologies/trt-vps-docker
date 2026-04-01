@@ -1,8 +1,8 @@
 services:
   hashstore:
     build: .
-    container_name: trt-hashstore
-    hostname: trt-hashstore
+    container_name: trt-vps
+    hostname: trt-vps
     ports:
       - "8880:80"     # Nginx
       - "5433:5432"   # PostgreSQL (offset to avoid host conflicts)
@@ -19,12 +19,18 @@ services:
       - ./services/trt-hashstore-storage/migrations:/opt/trt-hashstore-storage/migrations
       - ./services/trt-hashstore-capacity/bin:/opt/trt-hashstore-capacity/bin
       - ./services/trt-hashstore-capacity/migrations:/opt/trt-hashstore-capacity/migrations
-      - ./services/trt-hashstore-notification/bin:/opt/trt-hashstore-notification/bin
-      - ./services/trt-hashstore-notification/migrations:/opt/trt-hashstore-notification/migrations
+      - ./services/trt-hashstore-notifier/bin:/opt/trt-hashstore-notifier/bin
+      - ./services/trt-hashstore-notifier/migrations:/opt/trt-hashstore-notifier/migrations
       - ./services/trt-hashstore-audit/bin:/opt/trt-hashstore-audit/bin
       - ./services/trt-hashstore-audit/migrations:/opt/trt-hashstore-audit/migrations
-      # Mount static website
-      - ./websites/hashstore:/var/www/hashstore
+      # Notifications API (shares notifier's DB, no separate migrations)
+      - ./services/trt-hashstore-notifications/bin:/opt/trt-hashstore-notifications/bin
+      # Payments
+      - ./services/trt-payments/bin:/opt/trt-payments/bin
+      - ./services/trt-payments/migrations:/opt/trt-payments/migrations
+      # Jaspr SSR website
+      - ./services/trt-jaspr/app:/opt/trt-jaspr/bin/app
+      - ./services/trt-jaspr/web:/opt/trt-jaspr/web
       # Persist data across restarts
       - pgdata:/var/lib/postgresql
       - redisdata:/var/lib/redis

@@ -1,0 +1,1 @@
+{"name":"LoginPage","id":["trt_hashstore_jaspr_website","lib/src/authentication/pages/login_page.dart"],"import":"package:trt_hashstore_jaspr_website/src/authentication/pages/login_page.dart","params":[{"name":"redirectPath","isNamed":true,"decoder":"p['redirectPath'] as String?","encoder":"c.redirectPath"}]}

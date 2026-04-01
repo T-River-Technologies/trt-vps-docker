@@ -50,33 +50,35 @@ AUTH_MIGRATOR_URL="postgres://trt_auth_migrator:dev_password@127.0.0.1:5432/trau
 HASHSTORE_API_MIGRATOR_URL="postgres://trt_hashstore_migrator:dev_password@127.0.0.1:5432/hashstore_api?sslmode=disable"
 HASHSTORE_STORAGE_MIGRATOR_URL="postgres://trt_hashstore_storage_migrator:dev_password@127.0.0.1:5432/hashstore_storage?sslmode=disable"
 HASHSTORE_CAPACITY_MIGRATOR_URL="postgres://trt_hashstore_capacity_migrator:dev_password@127.0.0.1:5432/hashstore_capacity?sslmode=disable"
-HASHSTORE_NOTIFICATION_MIGRATOR_URL="postgres://trt_hashstore_notification_migrator:dev_password@127.0.0.1:5432/hashstore_notification?sslmode=disable"
+HASHSTORE_NOTIFIER_MIGRATOR_URL="postgres://trt_hashstore_notifier_migrator:dev_password@127.0.0.1:5432/hashstore_notification?sslmode=disable"
 HASHSTORE_AUDIT_MIGRATOR_URL="postgres://trt_hashstore_audit_migrator:dev_password@127.0.0.1:5432/hashstore_audit?sslmode=disable"
+PAYMENTS_MIGRATOR_URL="postgres://trt_payments_migrator:dev_password@127.0.0.1:5432/trtpay?sslmode=disable"
 
 run_migrations /opt/trt-auth/migrations "$AUTH_MIGRATOR_URL" authenticator
 run_migrations /opt/trt-hashstore/migrations "$HASHSTORE_API_MIGRATOR_URL" hashstore-api
 run_migrations /opt/trt-hashstore-storage/migrations "$HASHSTORE_STORAGE_MIGRATOR_URL" hashstore-storage
 run_migrations /opt/trt-hashstore-capacity/migrations "$HASHSTORE_CAPACITY_MIGRATOR_URL" hashstore-capacity
-run_migrations /opt/trt-hashstore-notification/migrations "$HASHSTORE_NOTIFICATION_MIGRATOR_URL" hashstore-notification
+run_migrations /opt/trt-hashstore-notifier/migrations "$HASHSTORE_NOTIFIER_MIGRATOR_URL" hashstore-notifier
 run_migrations /opt/trt-hashstore-audit/migrations "$HASHSTORE_AUDIT_MIGRATOR_URL" hashstore-audit
+run_migrations /opt/trt-payments/migrations "$PAYMENTS_MIGRATOR_URL" payments
 
 echo "==> Starting TRT services..."
 
 # Helper: start a service binary as the given user.
 # All TRT_* env vars are already loaded from /etc/environment.
-# Each service reads its own service-specific env vars directly.
-# Usage: start_service <user> <binary> <label>
+# Extra env vars can be passed after the label argument.
+# Usage: start_service <user> <binary> <label> [extra_env ...]
 start_service() {
     local user="$1" binary="$2" label="$3"
+    shift 3
     if [ ! -x "$binary" ]; then
         echo "    SKIP $label — binary not found"
         return
     fi
     echo "    Starting $label..."
-    # Export all TRT_* env vars into the sub-shell so the
-    # service can read its own prefixed variables.
     runuser -u "$user" -- env \
         $(env | grep '^TRT_' | tr '\n' ' ') \
+        "$@" \
         "$binary" &
 }
 
@@ -86,40 +88,78 @@ start_service trt-auth \
     authenticator
 sleep 3
 
-# HashStore API (port 8080 — default from TRT_HASHSTORE_API_PORT)
+# HashStore API (port 50010)
 start_service trt-hashstore \
     /opt/trt-hashstore/bin/hashstore-api \
     hashstore-api
 
-# HashStore Storage (port 8082 — default from TRT_HASHSTORE_STORAGE_PORT)
+# HashStore Storage (port 50012)
 start_service trt-hashstore-storage \
     /opt/trt-hashstore-storage/bin/hashstore-storage \
     hashstore-storage
 
-# HashStore Capacity (port 8081 — default from TRT_HASHSTORE_CAPACITY_PORT)
+# HashStore Capacity (port 50011)
 start_service trt-hashstore-capacity \
     /opt/trt-hashstore-capacity/bin/hashstore-capacity \
     hashstore-capacity
 
+# Payments (port 50015 — generic env var names need explicit override)
+# Must run from /opt/trt-payments so the internal migrator finds ./migrations/
+echo "    Starting payments..."
+if [ -x /opt/trt-payments/bin/payments ]; then
+    (cd /opt/trt-payments && runuser -u trt-payments -- env \
+        $(env | grep '^TRT_' | tr '\n' ' ') \
+        TRT_DATABASE_URL=postgres://trt_payments_app:dev_password@127.0.0.1:5432/trtpay?sslmode=disable \
+        TRT_SERVER_PORT=50015 \
+        TRT_AUTH_SERVICE_URL=http://127.0.0.1:50002 \
+        TRT_ADYEN_API_KEY=dev-adyen-api-key \
+        TRT_ADYEN_MERCHANT=TestMerchantAccount \
+        TRT_ADYEN_HMAC_KEY=dev-adyen-hmac-key \
+        TRT_ADYEN_ENVIRONMENT=test \
+        ./bin/payments &)
+else
+    echo "    SKIP payments — binary not found"
+fi
+
 # Wait for API to create NATS streams before starting consumers
 sleep 5
 
-# HashStore Notifier (port 8083 — default from TRT_HASHSTORE_NOTIFIER_PORT)
-start_service trt-hashstore-notification \
-    /opt/trt-hashstore-notification/bin/hashstore-notification \
+# HashStore Notifier (port 50013)
+start_service trt-hashstore-notifier \
+    /opt/trt-hashstore-notifier/bin/hashstore-notifier \
     hashstore-notifier
 
-# HashStore Audit (port 8084 — set via TRT_HASHSTORE_AUDIT_PORT in dev.env)
+# HashStore Audit (port 50014)
 start_service trt-hashstore-audit \
     /opt/trt-hashstore-audit/bin/hashstore-audit \
     hashstore-audit
+
+# Notifications API (port 50016 — shares notifier's DB)
+start_service trt-hashstore-notifications \
+    /opt/trt-hashstore-notifications/bin/hashstore-notifications \
+    hashstore-notifications
+
+# Jaspr SSR website (port 50080 via PORT env var, proxied by nginx)
+# Must run from /opt/trt-jaspr so the server finds the web/ directory.
+echo "    Starting jaspr-website..."
+if [ -x /opt/trt-jaspr/bin/app ]; then
+    (cd /opt/trt-jaspr && runuser -u trt-jaspr -- env \
+        AUTH_BASE_URL="${AUTH_BASE_URL:-http://127.0.0.1:50002}" \
+        PAY_BASE_URL="${PAY_BASE_URL:-http://127.0.0.1:50015}" \
+        HASH_BASE_URL="${HASH_BASE_URL:-http://127.0.0.1:50010}" \
+        PORT=50080 \
+        ./bin/app &)
+else
+    echo "    SKIP jaspr-website — binary not found"
+fi
 
 echo "==> Starting Nginx..."
 nginx -g 'daemon off;' &
 
 echo "==> All services started. Container is ready."
-echo "    HashStore: http://localhost:8880"
-echo "    Mailpit:   http://localhost:8025"
+echo "    Website:  http://localhost:8880"
+echo "    Mailpit:  http://localhost:8025"
+echo "    APIs:     /h/ (hashstore) /a/ (auth) /p/ (payments) /n/ (notifications)"
 
 # Keep container alive regardless of individual service crashes
 tail -f /dev/null

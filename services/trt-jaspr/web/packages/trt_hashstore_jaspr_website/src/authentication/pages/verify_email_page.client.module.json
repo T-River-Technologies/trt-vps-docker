@@ -1,0 +1,1 @@
+{"name":"VerifyEmailPage","id":["trt_hashstore_jaspr_website","lib/src/authentication/pages/verify_email_page.dart"],"import":"package:trt_hashstore_jaspr_website/src/authentication/pages/verify_email_page.dart","params":[{"name":"token","isNamed":true,"decoder":"p['token'] as String?","encoder":"c.token"}]}

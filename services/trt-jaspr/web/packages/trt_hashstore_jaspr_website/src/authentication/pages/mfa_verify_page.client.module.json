@@ -1,0 +1,1 @@
+{"name":"MfaVerifyPage","id":["trt_hashstore_jaspr_website","lib/src/authentication/pages/mfa_verify_page.dart"],"import":"package:trt_hashstore_jaspr_website/src/authentication/pages/mfa_verify_page.dart","params":[{"name":"mfaToken","isNamed":true,"decoder":"p['mfaToken'] as String?","encoder":"c.mfaToken"}]}
