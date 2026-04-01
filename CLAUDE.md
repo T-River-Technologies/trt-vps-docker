@@ -62,6 +62,13 @@ entrypoint script, just like systemd manages them on the VPS.
 | Notifications API    | 50016 | `/n/` | `/opt/trt-hashstore-notifications/` |
 | Jaspr Website (SSR)  | 50080 | `/`   | `/opt/trt-jaspr/bin/`          |
 
+### Known Configuration Notes
+
+**Redis `vm.overcommit_memory`:** `docker-compose.yml` sets `sysctls: vm.overcommit_memory: 1`.
+This writes the value to the host kernel via Docker (not namespaced). It suppresses the Redis
+background-save warning and ensures RDB snapshots succeed under memory pressure. The host machine
+running the container should also have this set permanently — see Story 1.2 in BUG EPIC 1.
+
 ### Usage
 
 ```bash

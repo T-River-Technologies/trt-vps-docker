@@ -39,6 +39,10 @@ services:
       - mailpitdata:/data/mailpit
       # Environment file with secrets
       - ./dev.env:/etc/environment:ro
+    sysctls:
+      # Redis requires vm.overcommit_memory=1 to avoid background-save failures under
+      # memory pressure. This is a host-level sysctl — Docker writes it to the host kernel.
+      vm.overcommit_memory: 1
     env_file:
       - dev.env
 

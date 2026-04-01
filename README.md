@@ -1,7 +1,8 @@
 # trt-vps-docker
 
 Docker container replicating the TRT VPS environment. Runs Ubuntu 25.10 with PostgreSQL,
-Redis, NATS JetStream, and Nginx — the same stack the deployer provisions on a bare server.
+Redis, NATS JetStream, Nginx, and Mailpit — the same stack the deployer provisions on a bare
+server.
 
 ## Quick Start
 
@@ -21,35 +22,39 @@ services/
   trt-auth/
     bin/authenticator
     migrations/
-  trt-maktab/
-    bin/maktab
-    migrations/
   trt-hashstore/
-    bin/hashstore
+    bin/hashstore-api
     migrations/
   ...
 ```
 
-Place Jaspr website builds in `websites/`:
-
-```
-websites/
-  maktab/       # built output from trt-maktab-jaspr-website
-  hashstore/    # built output from trt-hashstore-jaspr-website
-```
-
 ## Ports
 
-Host ports are offset by 1 to avoid conflicts with local services:
+Host ports are offset to avoid conflicts with local services:
 
-| Service    | Container | Host |
-|------------|-----------|------|
-| Nginx      | 80        | 8880 |
-| PostgreSQL | 5432      | 5433 |
-| Redis      | 6379      | 6380 |
-| NATS       | 4222      | 4223 |
+| Service     | Container | Host |
+|-------------|-----------|------|
+| Nginx       | 80        | 8880 |
+| PostgreSQL  | 5432      | 5433 |
+| Redis       | 6379      | 6380 |
+| NATS        | 4222      | 4223 |
+| Mailpit UI  | 8025      | 8025 |
 
 ## Access
 
-- Maktab: `http://maktab.localhost:8880`
-- HashStore: `http://hashstore.localhost:8880`
+- Website: `http://localhost:8880`
+- Mailpit: `http://localhost:8025`
+- APIs: `/h/` (hashstore), `/a/` (auth), `/p/` (payments), `/n/` (notifications)
+
+## Host Requirements
+
+**Redis memory overcommit:** `docker-compose.yml` sets `vm.overcommit_memory=1` via Docker
+sysctls. This writes to the host kernel and suppresses the Redis background-save warning.
+For the setting to persist across reboots on the host machine, add it permanently:
+
+```
+# /etc/sysctl.conf
+vm.overcommit_memory = 1
+```
+
+Then apply with `sudo sysctl -p`.
