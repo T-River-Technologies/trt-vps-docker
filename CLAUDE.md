@@ -64,10 +64,10 @@ entrypoint script, just like systemd manages them on the VPS.
 
 ### Known Configuration Notes
 
-**Redis `vm.overcommit_memory`:** `docker-compose.yml` sets `sysctls: vm.overcommit_memory: 1`.
-This writes the value to the host kernel via Docker (not namespaced). It suppresses the Redis
-background-save warning and ensures RDB snapshots succeed under memory pressure. The host machine
-running the container should also have this set permanently — see Story 1.2 in BUG EPIC 1.
+**Redis `vm.overcommit_memory`:** `vm.overcommit_memory` is a non-namespaced Linux kernel sysctl.
+Docker (runc) refuses to set it via `sysctls` in docker-compose.yml. It must be set on the host
+machine — the container shares the host kernel's VM subsystem. See the Host Requirements section
+in README.md.
 
 ### Usage
 
