@@ -62,6 +62,12 @@ run_migrations /opt/trt-hashstore-notifier/migrations "$HASHSTORE_NOTIFIER_MIGRA
 run_migrations /opt/trt-hashstore-audit/migrations "$HASHSTORE_AUDIT_MIGRATOR_URL" hashstore-audit
 run_migrations /opt/trt-payments/migrations "$PAYMENTS_MIGRATOR_URL" payments
 
+# Override payments DB-seeded server config to use Docker ports.
+# The seed migration inserts server.port=8081; we need 50015.
+echo "    Patching payments server config..."
+su - postgres -c "psql -d trtpay -c \"UPDATE configurations SET value='50015' WHERE key='server.port';\"" 2>/dev/null || true
+su - postgres -c "psql -d trtpay -c \"UPDATE configurations SET value='127.0.0.1' WHERE key='server.host';\"" 2>/dev/null || true
+
 echo "==> Starting TRT services..."
 
 # Helper: start a service binary as the given user.
