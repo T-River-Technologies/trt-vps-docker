@@ -30,7 +30,7 @@ services:
       - ./services/trt-payments/migrations:/opt/trt-payments/migrations
       # Jaspr SSR website
       - ./services/trt-jaspr/app:/opt/trt-jaspr/bin/app
-      - ./services/trt-jaspr/web:/opt/trt-jaspr/web
+      - ./services/trt-jaspr/web:/opt/trt-jaspr/bin/web
       # Persist data across restarts
       - pgdata:/var/lib/postgresql
       - redisdata:/var/lib/redis
