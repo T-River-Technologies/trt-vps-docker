@@ -20,6 +20,50 @@ echo "==> Starting NATS JetStream..."
 nats-server -c /etc/nats/nats.conf &
 sleep 1
 
+echo "==> Starting HashiCorp Vault..."
+export VAULT_ADDR=http://127.0.0.1:8200
+vault server -config=/etc/vault.d/vault.hcl &
+
+# Wait up to 30 s for Vault to accept connections (exit 2=sealed, not 1=down)
+echo "    Waiting for Vault to start..."
+vault_ready=false
+for _ in $(seq 1 30); do
+    vault_exit=0
+    vault status >/dev/null 2>&1 || vault_exit=$?
+    if [ "$vault_exit" -ne 1 ]; then
+        vault_ready=true
+        break
+    fi
+    sleep 1
+done
+if [ "$vault_ready" = false ]; then
+    echo "    ERROR: Vault did not start in time" >&2
+    exit 1
+fi
+
+VAULT_INIT_FILE=/opt/vault/data/init.json
+if [ ! -f "$VAULT_INIT_FILE" ]; then
+    echo "    Initializing Vault (first run)..."
+    vault operator init -key-shares=1 -key-threshold=1 -format=json \
+        > "$VAULT_INIT_FILE"
+    VAULT_UNSEAL_KEY=$(jq -r '.unseal_keys_b64[0]' "$VAULT_INIT_FILE")
+    export VAULT_TOKEN
+    VAULT_TOKEN=$(jq -r '.root_token' "$VAULT_INIT_FILE")
+    vault operator unseal "$VAULT_UNSEAL_KEY"
+    vault secrets enable -path=secret kv-v2
+    vault kv put secret/notifier/smtp password=dev_smtp_password
+    echo "    Vault initialized, unsealed, and seeded."
+else
+    echo "    Unsealing Vault (subsequent run)..."
+    VAULT_UNSEAL_KEY=$(jq -r '.unseal_keys_b64[0]' "$VAULT_INIT_FILE")
+    export VAULT_TOKEN
+    VAULT_TOKEN=$(jq -r '.root_token' "$VAULT_INIT_FILE")
+    vault operator unseal "$VAULT_UNSEAL_KEY"
+    echo "    Vault unsealed."
+fi
+export TRT_VAULT_ADDR=http://127.0.0.1:8200
+export TRT_VAULT_TOKEN="$VAULT_TOKEN"
+
 echo "==> Starting Mailpit (SMTP capture + web UI)..."
 mailpit --smtp 0.0.0.0:1025 --listen 0.0.0.0:8025 \
     --db-file /data/mailpit/mailpit.db &

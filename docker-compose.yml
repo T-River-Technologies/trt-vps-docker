@@ -37,6 +37,7 @@ services:
       - natsdata:/var/lib/nats/jetstream
       - chunkdata:/data/hashstore/chunks
       - mailpitdata:/data/mailpit
+      - vaultdata:/opt/vault/data
       # Environment file with secrets
       - ./dev.env:/etc/environment:ro
     env_file:
@@ -48,3 +49,4 @@ volumes:
   natsdata:
   chunkdata:
   mailpitdata:
+  vaultdata:

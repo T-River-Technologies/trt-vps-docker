@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     tzdata \
+    jq \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install golang-migrate for running database migrations
@@ -25,6 +27,18 @@ RUN curl -fsSL https://github.com/golang-migrate/migrate/releases/download/v4.18
 # Install Mailpit for email testing (SMTP capture + web UI)
 RUN curl -fsSL https://github.com/axllent/mailpit/releases/latest/download/mailpit-linux-amd64.tar.gz \
     | tar -xz -C /usr/local/bin mailpit
+
+# Install HashiCorp Vault for secrets management
+ENV VAULT_VERSION=1.18.4
+RUN curl -fsSL \
+    "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip" \
+    -o /tmp/vault.zip \
+    && unzip -q /tmp/vault.zip -d /usr/bin/ \
+    && rm /tmp/vault.zip \
+    && vault --version
+
+# Create vault system user
+RUN useradd --system --no-create-home --shell /usr/sbin/nologin vault
 
 # Create system users matching VPS deployer layout (no-login shells)
 RUN useradd --system --no-create-home --shell /usr/sbin/nologin trt-auth \
@@ -36,6 +50,12 @@ RUN useradd --system --no-create-home --shell /usr/sbin/nologin trt-auth \
     && useradd --system --no-create-home --shell /usr/sbin/nologin trt-hashstore-audit \
     && useradd --system --no-create-home --shell /usr/sbin/nologin trt-payments \
     && useradd --system --no-create-home --shell /usr/sbin/nologin trt-jaspr
+
+# Create Vault directories
+RUN mkdir -p /opt/vault/data /var/log/vault /etc/vault.d \
+    && chown -R vault:vault /opt/vault/data /var/log/vault \
+    && chown -R root:vault /etc/vault.d \
+    && chmod 750 /etc/vault.d
 
 # Create service directories matching VPS /opt layout
 RUN mkdir -p \
@@ -71,6 +91,9 @@ RUN chown -R trt-auth:trt-auth /opt/trt-auth /var/backups/trauth \
     && chown -R trt-hashstore-audit:trt-hashstore-audit /opt/trt-hashstore-audit \
     && chown -R trt-payments:trt-payments /opt/trt-payments \
     && chown -R trt-jaspr:trt-jaspr /opt/trt-jaspr
+
+# Vault configuration
+COPY config/vault/vault.hcl /etc/vault.d/vault.hcl
 
 # NATS configuration
 COPY config/nats/nats.conf /etc/nats/nats.conf
