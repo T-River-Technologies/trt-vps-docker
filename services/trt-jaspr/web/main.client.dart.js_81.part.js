@@ -1,39 +1,27 @@
 ((a,b)=>{a[b]=a[b]||{}})(self,"$__dart_deferred_initializers__")
-$__dart_deferred_initializers__.current=function(a,b,c,$){var A,C,B={
-Ce(d){var x
-switch(d.a){case 0:x="tr-spl-header-actions--start"
-break
-case 1:x="tr-spl-header-actions--center"
-break
-case 2:x="tr-spl-header-actions--end"
-break
-default:x=null}return x},
-aL:function aL(d,e,f,g,h){var _=this
-_.c=d
-_.d=e
-_.e=f
-_.f=g
-_.a=h},
-pc:function pc(d,e){this.a=d
-this.b=e}},D
-A=c[0]
-C=c[57]
-B=a.updateHolder(c[46],B)
-D=c[74]
-B.aL.prototype={
-n(d){var x=this,w=null,v=B.Ce(x.e),u=y.d,t=A.a([],u),s=x.c
-if(s!=null)t.push(s)
-s=x.d
-if(s.length!==0)t.push(new A.b("div",w,"tr-spl-header-actions "+v,w,w,w,s,w))
-v=A.a([],u)
-v.push(x.f)
-return new A.b("div",w,"tr-single-page-layout",w,w,w,A.a([new A.b("header",w,"tr-spl-header",w,w,w,t,w),new A.b("main",w,"tr-spl-content",w,w,w,v,w)],u),w)}}
-B.pc.prototype={
-C(){return"TRHeaderActionAlignment."+this.b}}
-var z=a.updateTypes([]);(function inheritance(){var x=a.inherit
-x(B.aL,C.a5)
-x(B.pc,A.ar)})()
-A.X(b.typeUniverse,JSON.parse('{"aL":{"a5":[],"e":[]}}'))
-var y={d:A.i("v<e>")};(function constants(){D.t=new B.pc(2,"end")})()};
-(a=>{a["hYNYDyu3bcbFBhsvDIQLCc3nGvA="]=a.current})($__dart_deferred_initializers__);
+$__dart_deferred_initializers__.current=function(a,b,c,$){var C,B={hQ:function hQ(d,e){this.a=d
+this.b=e},eG:function eG(d,e){this.a=d
+this.b=e}},A
+C=c[0]
+B=a.updateHolder(c[43],B)
+A=c[96]
+B.hQ.prototype={
+B(){return"TRBrightness."+this.b}}
+B.eG.prototype={
+B(){return"TRThemeKey."+this.b}}
+var z=a.updateTypes([]);(function inheritance(){var y=a.inheritMany
+y(C.ao,[B.hQ,B.eG])})();(function constants(){A.az=new B.eG(0,"defaultTheme")
+A.a1=new B.hQ(0,"light")
+A.bP=new C.aH(A.az,A.a1)
+A.ax=new B.hQ(1,"dark")
+A.bQ=new C.aH(A.az,A.ax)
+A.cg=new B.eG(1,"grayTone")
+A.bR=new C.aH(A.cg,A.a1)
+A.bS=new C.aH(A.cg,A.ax)
+A.ch=new B.eG(2,"blueOrangeTone")
+A.bT=new C.aH(A.ch,A.a1)
+A.bU=new C.aH(A.ch,A.ax)
+A.fq={"default-light":0,"default-dark":1,"gray-light":2,"gray-dark":3,"blue-orange-light":4,"blue-orange-dark":5}
+A.L=new C.ad(A.fq,[A.bP,A.bQ,A.bR,A.bS,A.bT,A.bU],C.h("ad<d,+(eG,hQ)>"))})()};
+(a=>{a["ua/G8hd/O5xN8j5RXI0R6K29VFY="]=a.current})($__dart_deferred_initializers__);
 //# sourceMappingURL=main.client.dart.js_81.part.js.map

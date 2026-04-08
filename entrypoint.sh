@@ -64,6 +64,25 @@ fi
 export TRT_VAULT_ADDR=http://127.0.0.1:8200
 export TRT_VAULT_TOKEN="$VAULT_TOKEN"
 
+# Configure AppRole auth and Transit engine for hashstore-api (idempotent).
+echo "    Configuring Vault AppRole and Transit for hashstore..."
+vault auth enable approle 2>/dev/null || true
+vault secrets enable transit 2>/dev/null || true
+vault policy write hashstore-policy - <<'HCL'
+path "transit/keys/*"                      { capabilities = ["create","read","update","delete","list"] }
+path "transit/export/encryption-key/*"     { capabilities = ["read"] }
+HCL
+vault write auth/approle/role/hashstore \
+    secret_id_ttl=0 \
+    token_ttl=24h \
+    token_max_ttl=24h \
+    policies=hashstore-policy >/dev/null
+HASHSTORE_ROLE_ID=$(vault read -field=role_id auth/approle/role/hashstore/role-id)
+HASHSTORE_SECRET_ID=$(vault write -field=secret_id -f auth/approle/role/hashstore/secret-id)
+export TRT_VAULT_ROLE_ID="$HASHSTORE_ROLE_ID"
+export TRT_VAULT_SECRET_ID="$HASHSTORE_SECRET_ID"
+echo "    Vault AppRole configured for hashstore."
+
 echo "==> Starting Mailpit (SMTP capture + web UI)..."
 mailpit --smtp 0.0.0.0:1025 --listen 0.0.0.0:8025 \
     --db-file /data/mailpit/mailpit.db &
@@ -86,7 +105,19 @@ run_migrations() {
         return
     fi
     echo "    Migrating $label..."
-    migrate -path "$dir" -database "$db_url" up 2>&1 || true
+    # Auto-fix dirty state: extract the dirty version and force-reset to version-1 so
+    # the failed migration is retried cleanly.
+    local output
+    output=$(migrate -path "$dir" -database "$db_url" up 2>&1) || true
+    if echo "$output" | grep -q "Dirty database version"; then
+        local dirty_ver
+        dirty_ver=$(echo "$output" | grep -oE 'Dirty database version [0-9]+' | grep -oE '[0-9]+$')
+        echo "      Dirty version $dirty_ver detected in $label — forcing reset..."
+        migrate -path "$dir" -database "$db_url" force "$((dirty_ver - 1))" 2>/dev/null || true
+        migrate -path "$dir" -database "$db_url" up 2>&1 || true
+    else
+        echo "$output"
+    fi
 }
 
 # Migrator URLs use the migrator users (DDL privileges)
@@ -137,6 +168,35 @@ start_service trt-auth \
     /opt/trt-auth/bin/authenticator \
     authenticator
 sleep 3
+
+# Seed dev users in the background after authenticator is ready (idempotent).
+# admin@dev.local — admin + organizer roles, email pre-verified.
+# test@dev.local  — user + organizer roles, email pre-verified.
+(
+    for _ in $(seq 1 30); do
+        curl -sf http://127.0.0.1:50002/health >/dev/null 2>&1 && break
+        sleep 1
+    done
+    for email in admin@dev.local test@dev.local; do
+        first="Admin"; last="Dev"; [ "$email" = "test@dev.local" ] && first="Test" && last="User"
+        curl -sf -X POST http://127.0.0.1:50002/api/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$email\",\"password\":\"Dev@12345!\",\"first_name\":\"$first\",\"last_name\":\"$last\"}" \
+            >/dev/null 2>&1 || true
+    done
+    su - postgres -c "psql -d trauth" <<'SQL'
+        UPDATE users SET email_verified = true
+            WHERE email IN ('admin@dev.local','test@dev.local')
+            AND email_verified = false;
+        INSERT INTO user_roles (user_id, role_id)
+            SELECT u.id, r.id FROM users u JOIN roles r ON r.name = 'admin'
+            WHERE u.email = 'admin@dev.local'
+            AND NOT EXISTS (
+                SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
+            );
+SQL
+    echo "    Dev users ready: admin@dev.local / test@dev.local  password: Dev@12345!"
+) &
 
 # HashStore API (port 50010)
 start_service trt-hashstore \

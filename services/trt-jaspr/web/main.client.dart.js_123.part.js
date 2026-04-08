@@ -1,97 +1,115 @@
 ((a,b)=>{a[b]=a[b]||{}})(self,"$__dart_deferred_initializers__")
 $__dart_deferred_initializers__.current=function(a,b,c,$){var A,C,B={
-Cv(d){return new B.cP(d,null)},
-cP:function cP(d,e){this.c=d
-this.a=e},
-kS:function kS(){var _=this
+CR(){return new B.cy(null)},
+cy:function cy(d){this.a=d},
+kU:function kU(){var _=this
 _.d=$
-_.e=""
-_.f=!1
-_.c=_.a=null},
-wG:function wG(d){this.a=d},
-wH:function wH(d){this.a=d},
-wF:function wF(d){this.a=d},
-wE:function wE(d,e){this.a=d
-this.b=e}},G,E,H,I,K,L,F,D,M,N,O,P
+_.e=!1
+_.f=""
+_.c=_.a=_.r=null},
+uz:function uz(d){this.a=d},
+ux:function ux(d){this.a=d},
+uw:function uw(d,e){this.a=d
+this.b=e},
+uy:function uy(d){this.a=d},
+uv:function uv(d){this.a=d}},D,K,L,M,N,E,O,F,G,H,I
 A=c[0]
 C=c[2]
-B=a.updateHolder(c[13],B)
-G=c[39]
-E=c[58]
-H=c[56]
-I=c[61]
-K=c[52]
-L=c[57]
-F=c[45]
-D=c[69]
-M=c[46]
-N=c[74]
-O=c[73]
-P=c[54]
-B.cP.prototype={
-B(){return new B.kS()}}
-B.kS.prototype={
-F(){var x,w,v=this
-v.G()
-x=F.f6(new F.cg())
-v.d=x
-w=v.a.c
-if(w!=null&&w.length!==0)x.aK(v.hq(),w)},
+B=a.updateHolder(c[10],B)
+D=c[65]
+K=c[62]
+L=c[68]
+M=c[57]
+N=c[64]
+E=c[51]
+O=c[76]
+F=c[52]
+G=c[81]
+H=c[80]
+I=c[59]
+B.cy.prototype={
+C(){return new B.kU()}}
+B.kU.prototype={
+F(){var x,w
+this.G()
+this.d=E.fk(new E.cm())
+x=b.G
+w=A.r(A.f(A.f(x.window).sessionStorage).getItem("hs_mfa_token"))
+if(w==null||w.length===0){A.f(A.f(x.window).location).assign("/login")
+return}this.r=w},
 R(){var x=this.d
-x===$&&A.h()
-x.M()
-this.U()},
-hq(){var x,w,v,u,t
-for(x=A.r(A.f(b.G.document).cookie).split(";"),w=x.length,v=0;v<w;++v){u=x[v]
-t=C.a.Y(u,"=")
-if(t>0)if(C.a.u(C.a.L(u,0,t))==="hs_csrf")return C.a.u(C.a.P(u,t+1))}return""},
-m3(){var x,w,v=this
-if(C.a.u(v.e).length===0)return
-v.k(new B.wG(v))
-x=v.d
-x===$&&A.h()
-w=C.a.u(v.e)
-x.aJ(v.hq(),w)},
-n(d){var x=this.d
-x===$&&A.h()
-return new L.S(x,new B.wH(this),null,y.l)},
-oZ(d){var x,w=this,v=null,u="div",t="hs-verify-email",s="hs-login-card__title",r="hs-verify-email__body",q="hs-login-card__links",p="hs-auth-link",o="Back to sign in",n=d.a
-if(n===D.u)return w.fM()
-if(n===D.aS){n=y.p
+x===$&&A.i()
+x.L()
+this.T()},
+mX(){var x,w,v,u,t
+for(x=A.q(A.f(b.G.document).cookie).split(";"),w=x.length,v=0;v<w;++v){u=x[v]
+t=C.a.V(u,"=")
+if(t>0)if(C.a.t(C.a.H(u,0,t))==="hs_csrf")return C.a.t(C.a.N(u,t+1))}return""},
+mW(){var x,w,v,u,t=this,s=t.r
+if(s==null||s.length===0||t.f.length===0)return
+x=t.mX()
+w=t.e
+v=t.d
+u=t.f
+if(w){v===$&&A.i()
+v.dT(x,s,u)}else{v===$&&A.i()
+v.dU(x,s,u)}},
+p(d){var x=this.d
+x===$&&A.i()
+return new N.P(x,new B.uz(this),null,y.l)},
+mU(d){var x,w,v,u,t=this,s=null,r=d.Q,q=t.e?"Enter backup code":"Two-factor authentication",p=y.p
+q=A.a([new A.c(q,s)],p)
+q=A.a([new A.b("h1",s,"hs-login-card__title",s,s,s,q,s),new A.b("p",s,"hs-verify-email__body",s,s,s,A.a([new A.c(t.e?"Enter one of your backup recovery codes in the format XXXX-XXXX.":"Enter the 6-digit code from your authenticator app to complete sign in.",s)],p),s)],p)
+x=d.z
+if(x!=null)q.push(new A.b("p",s,"hs-login-card__error",s,s,s,A.a([new A.c(x,s)],p),s))
+x=t.e?"Backup code":"Authenticator code"
+q.push(M.an(!1,s,s,r,!1,x,new B.ux(t),s,s))
+x=r?"Verifying\u2026":"Verify"
+w=!r
+v=!w||t.f.length===0?s:t.gmV()
+q.push(new K.D(x,L.p,v,!1,!w||t.f.length===0,s))
 x=y.g
-return new A.b(u,v,t,v,v,v,A.a([new A.b("h1",v,s,v,v,v,A.a([new A.c("Email verified",v)],n),v),new A.b("p",v,r,v,v,v,A.a([new A.c("Your email address has been verified. You can now sign in.",v)],n),v),new A.b(u,v,q,v,v,v,A.a([new A.b("a",v,p,v,A.p(["href","/login"],x,x),v,A.a([new A.c("Sign in",v)],n),v)],n),v)],n),v)}if(n===D.aT){n=y.p
-x=y.g
-return new A.b(u,v,t,v,v,v,A.a([new A.b("h1",v,s,v,v,v,A.a([new A.c("Verification email sent",v)],n),v),new A.b("p",v,r,v,v,v,A.a([new A.c("A new verification link has been sent. Please check your inbox.",v)],n),v),new A.b(u,v,q,v,v,v,A.a([new A.b("a",v,p,v,A.p(["href","/login"],x,x),v,A.a([new A.c(o,v)],n),v)],n),v)],n),v)}if(n===D.K)return w.je(d.z)
-n=w.a.c
-if(n==null||n.length===0){n=y.p
-x=y.g
-return new A.b(u,v,t,v,v,v,A.a([new A.b("h1",v,s,v,v,v,A.a([new A.c("Invalid link",v)],n),v),new A.b("p",v,r,v,v,v,A.a([new A.c("This verification link is missing a token. Please use the link from your verification email.",v)],n),v),new A.b(u,v,q,v,v,v,A.a([new A.b("a",v,p,v,A.p(["href","/login"],x,x),v,A.a([new A.c(o,v)],n),v)],n),v)],n),v)}return w.fM()},
-fM(){var x=null,w=y.p
-return new A.b("div",x,"hs-verify-email",x,x,x,A.a([new A.b("h1",x,"hs-login-card__title",x,x,x,A.a([new A.c("Verifying your email\u2026",x)],w),x),new G.de(0,4,x)],w),x)},
-je(d){var x=null,w=y.p,v=A.a([new A.c("Verification failed",x)],w),u=A.a([new A.c(d==null?"This verification link is invalid or has expired.":d,x)],w),t=A.a([new A.c("Enter your email to receive a new link:",x)],w),s=this.f,r=K.an(!1,x,x,s,!1,"Email",new B.wF(this),"you@example.com",x),q=s?x:this.gm2(),p=y.g
-return new A.b("div",x,"hs-verify-email",x,x,x,A.a([new A.b("h1",x,"hs-login-card__title",x,x,x,v,x),new A.b("p",x,"hs-login-card__error",x,x,x,u,x),new A.b("p",x,"hs-verify-email__body",x,x,x,t,x),r,new H.C("Resend verification email",I.p,q,!1,s,x),new A.b("div",x,"hs-login-card__links",x,x,x,A.a([new A.b("a",x,"hs-auth-link",x,A.p(["href","/login"],p,p),x,A.a([new A.c("Back to sign in",x)],w),x)],w),x)],w),x)}}
-var z=a.updateTypes(["~()","aL(O,a4)"])
-B.wG.prototype={
-$0(){this.a.f=!0},
-$S:0}
-B.wH.prototype={
-$2(d,e){var x=null,w=y.p
-return new M.aL(x,O.l,N.t,new A.b("div",x,"hs-auth-center",x,x,x,A.a([new P.as(new A.b("div",x,"hs-login-card",x,x,x,A.a([this.a.oZ(y.k.a(e))],w),x),x)],w),x),x)},
+v=A.p(["type","button"],x,x)
+u=A.p(["click",new B.uy(t)],x,y.a)
+q.push(new A.b("div",s,"hs-login-card__links",s,s,s,A.a([new A.b("button",s,"hs-mfa-toggle",s,v,u,A.a([new A.c(t.e?"Use authenticator app":"Use backup code",s)],p),s),new A.b("a",s,"hs-auth-link",s,A.p(["href","/login"],x,x),s,A.a([new A.c("Cancel",s)],p),s)],p),s))
+return new F.aN(s,H.n,G.t,new A.b("div",s,"hs-auth-center",s,s,s,A.a([new I.aw(new A.b("div",s,"hs-login-card",s,s,s,q,s),s)],p),s),s)}}
+var z=a.updateTypes(["~()","e(O,a6)"])
+B.uz.prototype={
+$2(d,e){var x,w,v=null
+y.k.a(e)
+if(e.a===O.y){x=b.G
+A.f(A.f(x.window).sessionStorage).removeItem("hs_mfa_token")
+A.f(A.f(x.window).location).assign("/files")}x=this.a
+w=x.r
+if(w==null||w.length===0){x=y.p
+w=y.g
+return new F.aN(v,H.n,G.t,new A.b("div",v,"hs-auth-center",v,v,v,A.a([new I.aw(new A.b("div",v,"hs-login-card",v,v,v,A.a([new A.b("h1",v,"hs-login-card__title",v,v,v,A.a([new A.c("Session expired",v)],x),v),new A.b("p",v,"hs-verify-email__body",v,v,v,A.a([new A.c("Your authentication session has expired. Please sign in again.",v)],x),v),new A.b("div",v,"hs-login-card__links",v,v,v,A.a([new A.b("a",v,"hs-auth-link",v,A.p(["href","/login"],w,w),v,A.a([new A.c("Back to sign in",v)],x),v)],x),v)],x),v),v)],x),v),v)}return x.mU(e)},
 $S:z+1}
-B.wF.prototype={
+B.ux.prototype={
 $1(d){var x=this.a
-return x.k(new B.wE(x,d))},
-$S:4}
-B.wE.prototype={
-$0(){this.a.e=this.b},
+return x.k(new B.uw(x,d))},
+$S:5}
+B.uw.prototype={
+$0(){this.a.f=this.b},
+$S:0}
+B.uy.prototype={
+$1(d){var x
+A.f(d)
+x=this.a
+return x.k(new B.uv(x))},
+$S:1}
+B.uv.prototype={
+$0(){var x=this.a
+x.e=!x.e
+x.f=""},
 $S:0};(function installTearOffs(){var x=a._instance_0u
-x(B.kS.prototype,"gm2","m3",0)})();(function inheritance(){var x=a.inherit,w=a.inheritMany
-x(B.cP,E.y)
-x(B.kS,E.u)
-w(A.ab,[B.wG,B.wE])
-x(B.wH,A.ai)
-x(B.wF,A.a0)})()
-A.X(b.typeUniverse,JSON.parse('{"cP":{"y":[],"e":[]},"kS":{"u":["cP"],"u.T":"cP"}}'))
-var y={k:A.i("a4"),l:A.i("S<bK,a4>"),p:A.i("v<e>"),g:A.i("d")}};
-(a=>{a["s8SlOeIBMKQlY0LWg30LCnRKpMc="]=a.current})($__dart_deferred_initializers__);
+x(B.kU.prototype,"gmV","mW",0)})();(function inheritance(){var x=a.inherit,w=a.inheritMany
+x(B.cy,D.x)
+x(B.kU,D.u)
+x(B.uz,A.ah)
+w(A.Z,[B.ux,B.uy])
+w(A.aa,[B.uw,B.uv])})()
+A.W(b.typeUniverse,JSON.parse('{"cy":{"x":[],"e":[]},"kU":{"u":["cy"],"u.T":"cy"}}'))
+var y={k:A.h("a6"),l:A.h("P<bU,a6>"),p:A.h("v<e>"),g:A.h("d"),a:A.h("~(H)")}};
+(a=>{a["ajQFUd67+VsUi+h82goB87VZixw="]=a.current})($__dart_deferred_initializers__);
 //# sourceMappingURL=main.client.dart.js_123.part.js.map

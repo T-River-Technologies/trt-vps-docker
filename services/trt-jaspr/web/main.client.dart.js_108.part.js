@@ -1,103 +1,80 @@
 ((a,b)=>{a[b]=a[b]||{}})(self,"$__dart_deferred_initializers__")
-$__dart_deferred_initializers__.current=function(a,b,c,$){var A,B={lm:function lm(){},mh:function mh(){},q6:function q6(){},wC:function wC(d){this.b=0
-this.c=d},
-aw(d,e,f,g){var y,x,w,v,u,t="0123456789ABCDEF"
-if(f===C.j){y=$.Ax()
-y=y.b.test(e)}else y=!1
-if(y)return e
-x=C.dr.pd(e)
-for(y=x.length,w=0,v="";w<y;++w){u=x[w]
-if(u<128&&("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\u03f6\x00\u0404\u03f4 \u03f4\u03f6\u01f6\u01f6\u03f6\u03fc\u01f4\u03ff\u03ff\u0584\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u05d4\u01f4\x00\u01f4\x00\u0504\u05c4\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u0400\x00\u0400\u0200\u03f7\u0200\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u03ff\u0200\u0200\u0200\u03f7\x00".charCodeAt(u)&d)!==0)v+=A.a7(u)
-else v=g&&u===32?v+"+":v+"%"+t[u>>>4&15]+t[u&15]}return v.charCodeAt(0)==0?v:v}},C
+$__dart_deferred_initializers__.current=function(a,b,c,$){var A,E,B={
+Am(d,e,f){return new B.hR(f,e,d,null)},
+hR:function hR(d,e,f,g){var _=this
+_.c=d
+_.d=e
+_.e=f
+_.a=g},
+ka:function ka(){this.c=this.a=null},
+Aq(){var x=A.a(["16-128 characters"],y.h)
+E.b.n(x,"uppercase")
+E.b.n(x,"lowercase")
+E.b.n(x,"number")
+E.b.n(x,"special character")
+E.b.a_(x,", ")
+return new B.mC()},
+mC:function mC(){}},C,F,D,G
 A=c[0]
-B=a.updateHolder(c[51],B)
-C=c[76]
-B.lm.prototype={}
-B.mh.prototype={}
-B.q6.prototype={
-pd(d){var y,x,w,v,u=d.length,t=A.xW(0,null,u)
-if(t===0)return new Uint8Array(0)
-y=t*3
-x=new Uint8Array(y)
-w=new B.wC(x)
-if(w.kP(d,0,t)!==t){v=t-1
-if(!(v>=0&&v<u))return A.E(d,v)
-w.eG()}return new Uint8Array(x.subarray(0,A.Ds(0,w.b,y)))}}
-B.wC.prototype={
-eG(){var y,x=this,w=x.c,v=x.b,u=x.b=v+1
-w.$flags&2&&A.b2(w)
-y=w.length
-if(!(v<y))return A.E(w,v)
-w[v]=239
-v=x.b=u+1
-if(!(u<y))return A.E(w,u)
-w[u]=191
-x.b=v+1
-if(!(v<y))return A.E(w,v)
-w[v]=189},
-p_(d,e){var y,x,w,v,u,t=this
-if((e&64512)===56320){y=65536+((d&1023)<<10)|e&1023
-x=t.c
-w=t.b
-v=t.b=w+1
-x.$flags&2&&A.b2(x)
-u=x.length
-if(!(w<u))return A.E(x,w)
-x[w]=y>>>18|240
-w=t.b=v+1
-if(!(v<u))return A.E(x,v)
-x[v]=y>>>12&63|128
-v=t.b=w+1
-if(!(w<u))return A.E(x,w)
-x[w]=y>>>6&63|128
-t.b=v+1
-if(!(v<u))return A.E(x,v)
-x[v]=y&63|128
-return!0}else{t.eG()
-return!1}},
-kP(d,e,f){var y,x,w,v,u,t,s,r,q=this
-if(e!==f){y=f-1
-if(!(y>=0&&y<d.length))return A.E(d,y)
-y=(d.charCodeAt(y)&64512)===55296}else y=!1
-if(y)--f
-for(y=q.c,x=y.$flags|0,w=y.length,v=d.length,u=e;u<f;++u){if(!(u<v))return A.E(d,u)
-t=d.charCodeAt(u)
-if(t<=127){s=q.b
-if(s>=w)break
-q.b=s+1
-x&2&&A.b2(y)
-y[s]=t}else{s=t&64512
-if(s===55296){if(q.b+4>w)break
-s=u+1
-if(!(s<v))return A.E(d,s)
-if(q.p_(t,d.charCodeAt(s)))u=s}else if(s===56320){if(q.b+3>w)break
-q.eG()}else if(t<=2047){s=q.b
-r=s+1
-if(r>=w)break
-q.b=r
-x&2&&A.b2(y)
-if(!(s<w))return A.E(y,s)
-y[s]=t>>>6|192
-q.b=r+1
-y[r]=t&63|128}else{s=q.b
-if(s+2>=w)break
-r=q.b=s+1
-x&2&&A.b2(y)
-if(!(s<w))return A.E(y,s)
-y[s]=t>>>12|224
-s=q.b=r+1
-if(!(r<w))return A.E(y,r)
-y[r]=t>>>6&63|128
-q.b=s+1
-if(!(s<w))return A.E(y,s)
-y[s]=t&63|128}}}return u}}
-var z=a.updateTypes([]);(function inheritance(){var y=a.inherit
-y(B.lm,A.dI)
-y(B.mh,B.lm)
-y(B.q6,A.io)
-y(B.wC,A.I)})()
-A.X(b.typeUniverse,JSON.parse('{"lm":{"dI":["d","H<t>"]},"mh":{"dI":["d","H<t>"]}}'));(function constants(){C.j=new B.mh()
-C.dr=new B.q6()})();(function lazyInitializers(){var y=a.lazyFinal
-y($,"Hs","Ax",()=>A.b9("^[\\-\\.0-9A-Z_a-z~]*$"))})()};
-(a=>{a["0J/RUZ9A6P4T2kqQc+jCoJp/6nA="]=a.current})($__dart_deferred_initializers__);
+E=c[2]
+B=a.updateHolder(c[33],B)
+C=c[106]
+F=c[65]
+D=c[39]
+G=c[79]
+B.hR.prototype={
+C(){return new B.ka()}}
+B.ka.prototype={
+lD(d){var x,w
+A.f(d)
+this.a.toString
+d.preventDefault()
+x=this.a
+w=x.d
+x=x.c
+w.$1(!x)},
+p(d){var x,w,v=this,u=null,t=v.a.c,s=y.g,r=A.a5(s,s)
+r.l(0,"type","checkbox")
+r.l(0,"checked",t?"true":"false")
+v.a.toString
+x=A.a(["tr-checkbox"],y.h)
+x=E.b.a_(x," ")
+s=A.p(["click",v.glC()],s,y.a)
+w=y.p
+r=A.a([new A.b("input",u,"tr-checkbox__input",u,r,u,A.a([],w),u)],w)
+r.push(new A.b("div",u,"tr-checkbox__labels",u,u,u,A.a([new A.b("span",u,"tr-checkbox__label",u,u,u,A.a([new A.c(v.a.e,u)],w),u)],w),u))
+return new A.b("div",u,x,u,u,s,r,u)}}
+B.mC.prototype={
+al(d){var x=d.length
+if(x===0)return new D.aT(!1,"Password is required")
+if(x<16)return new D.aT(!1,"Password must be at least 16 characters")
+if(x>128)return new D.aT(!1,"Password must be at most 128 characters")
+x=$.BB()
+x=!x.b.test(d)
+if(x)return C.iN
+x=$.By()
+x=!x.b.test(d)
+if(x)return C.iO
+x=$.Bz()
+x=!x.b.test(d)
+if(x)return C.iP
+x=$.BA()
+x=!x.b.test(d)
+if(x)return C.iR
+return G.a3}}
+var z=a.updateTypes(["~(H)"]);(function installTearOffs(){var x=a._instance_1u
+x(B.ka.prototype,"glC","lD",0)})();(function inheritance(){var x=a.inherit
+x(B.hR,F.x)
+x(B.ka,F.u)
+x(B.mC,D.cU)})()
+A.W(b.typeUniverse,JSON.parse('{"hR":{"x":[],"e":[]},"ka":{"u":["hR"],"u.T":"hR"},"mC":{"cU":[]}}'))
+var y={p:A.h("v<e>"),h:A.h("v<d>"),g:A.h("d"),a:A.h("~(H)")};(function constants(){C.iN=new D.aT(!1,"Password must contain at least one uppercase letter")
+C.iO=new D.aT(!1,"Password must contain at least one lowercase letter")
+C.iP=new D.aT(!1,"Password must contain at least one number")
+C.iR=new D.aT(!1,"Password must contain at least one special character")})();(function lazyInitializers(){var x=a.lazyFinal
+x($,"IU","BB",()=>A.bd("[A-Z]"))
+x($,"IR","By",()=>A.bd("[a-z]"))
+x($,"IS","Bz",()=>A.bd("[0-9]"))
+x($,"IT","BA",()=>A.bd('[!@#$%^&*(),.?":{}|<>_\\-+=\\[\\]\\\\;/~`]'))})()};
+(a=>{a["pS+EwrHf9nDGFFXduAg37wZh5Qw="]=a.current})($__dart_deferred_initializers__);
 //# sourceMappingURL=main.client.dart.js_108.part.js.map

@@ -33,6 +33,16 @@ SERVICES=(
     "trt-hashstore-notifications-go-service|bin/hashstore-notifications|trt-hashstore-notifications|hashstore-notifications"
 )
 
+echo "==> Tidying Go modules..."
+for entry in "${SERVICES[@]}"; do
+    IFS='|' read -r repo_dir build_bin docker_dir docker_bin <<< "$entry"
+    repo_path="$TRT_ROOT/$repo_dir"
+    if [ ! -d "$repo_path" ]; then
+        continue
+    fi
+    (cd "$repo_path" && go mod tidy)
+done
+
 echo "==> Building Go services..."
 for entry in "${SERVICES[@]}"; do
     IFS='|' read -r repo_dir build_bin docker_dir docker_bin <<< "$entry"
@@ -96,18 +106,22 @@ sync_migrations "trt-hashstore-audit-go-service"        "trt-hashstore-audit"
 sync_migrations "trt-payments-go-service"               "trt-payments"
 
 # Notifications API unique migrations get appended to notifier's set (shared DB).
-# 000007 and 000008 are reserved for notifications API tables.
+# 000008 and 000009 are reserved for notifications API tables.
+# (000007 is now used by trt-hashstore-notifier itself: email_config_vault_path)
 notif_src="$TRT_ROOT/trt-hashstore-notifications-go-service/migrations"
 notif_dst="$SCRIPT_DIR/services/trt-hashstore-notifier/migrations"
 if [ -d "$notif_src" ]; then
+    # Remove stale copies that used the old (conflicting) 000007 numbering.
+    rm -f "$notif_dst/000007_create_push_tokens.up.sql" \
+          "$notif_dst/000007_create_push_tokens.down.sql"
     cp "$notif_src/000001_create_push_tokens.up.sql" \
-       "$notif_dst/000007_create_push_tokens.up.sql" 2>/dev/null || true
+       "$notif_dst/000008_create_push_tokens.up.sql" 2>/dev/null || true
     cp "$notif_src/000001_create_push_tokens.down.sql" \
-       "$notif_dst/000007_create_push_tokens.down.sql" 2>/dev/null || true
+       "$notif_dst/000008_create_push_tokens.down.sql" 2>/dev/null || true
     cp "$notif_src/000003_add_read_at_to_notifications.up.sql" \
-       "$notif_dst/000008_add_read_at_to_notifications.up.sql" 2>/dev/null || true
+       "$notif_dst/000009_add_read_at_to_notifications.up.sql" 2>/dev/null || true
     cp "$notif_src/000003_add_read_at_to_notifications.down.sql" \
-       "$notif_dst/000008_add_read_at_to_notifications.down.sql" 2>/dev/null || true
+       "$notif_dst/000009_add_read_at_to_notifications.down.sql" 2>/dev/null || true
 fi
 
 echo "    Migrations synced"
@@ -138,14 +152,15 @@ echo "==> Starting container..."
 (cd "$SCRIPT_DIR" && make up)
 
 echo ""
-echo "==> Deploy complete. Waiting for services to start..."
-sleep 20
+echo "==> Deploy complete. Polling for services to start (up to 90s)..."
 
-echo "==> Health checks:"
-check_health() {
-    local name="$1" url="$2"
-    local status
-    status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
+poll_health() {
+    local name="$1" url="$2" deadline=$((SECONDS + 90))
+    while [ $SECONDS -lt $deadline ]; do
+        status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
+        [ "$status" = "200" ] && break
+        sleep 2
+    done
     if [ "$status" = "200" ]; then
         printf "    %-25s ✓ %s\n" "$name" "$status"
     else
@@ -153,11 +168,12 @@ check_health() {
     fi
 }
 
-check_health "Jaspr Website"      "http://localhost:8880/"
-check_health "Authenticator /a/"  "http://localhost:8880/a/health"
-check_health "HashStore API /h/"  "http://localhost:8880/h/health"
-check_health "Payments /p/"       "http://localhost:8880/p/health"
-check_health "Notifications /n/"  "http://localhost:8880/n/health"
+poll_health "Authenticator /a/"  "http://localhost:8880/a/health" &
+poll_health "HashStore API /h/"  "http://localhost:8880/h/health" &
+poll_health "Payments /p/"       "http://localhost:8880/p/health" &
+poll_health "Notifications /n/"  "http://localhost:8880/n/health" &
+poll_health "Jaspr Website"      "http://localhost:8880/" &
+wait
 
 echo ""
 echo "    Website:  http://localhost:8880"
