@@ -181,7 +181,7 @@ sleep 3
         first="Admin"; last="Dev"; [ "$email" = "test@dev.local" ] && first="Test" && last="User"
         curl -sf -X POST http://127.0.0.1:50002/api/v1/auth/register \
             -H "Content-Type: application/json" \
-            -d "{\"email\":\"$email\",\"password\":\"Dev@12345!\",\"first_name\":\"$first\",\"last_name\":\"$last\"}" \
+            -d "{\"email\":\"$email\",\"password\":\"Password123!\",\"first_name\":\"$first\",\"last_name\":\"$last\"}" \
             >/dev/null 2>&1 || true
     done
     su - postgres -c "psql -d trauth" <<'SQL'
@@ -195,7 +195,7 @@ sleep 3
                 SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id
             );
 SQL
-    echo "    Dev users ready: admin@dev.local / test@dev.local  password: Dev@12345!"
+    echo "    Dev users ready: admin@dev.local / test@dev.local  password: Password123!"
 ) &
 
 # HashStore API (port 50010)
